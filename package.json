@@ -1,15 +1,18 @@
 {
-  "name": "dapr",
-  "version": "0.0.1",
+  "name": "@gm50x/nestjs-dapr-module",
+  "version": "0.0.3",
   "description": "",
   "author": "",
-  "private": true,
+  "private": false,
+  "main": "dist/index.js",
   "license": "UNLICENSED",
-  "main": "main.js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "postbuild": "cp package*.json dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
