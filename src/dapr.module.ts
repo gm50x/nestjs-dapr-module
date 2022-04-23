@@ -8,24 +8,41 @@ import { DaprClientService, DaprService } from './services';
 
 @Module({
   imports: [HttpModule, ConfigModule.forRoot({ isGlobal: true })],
-  providers: [SubscriptionsContainer, DaprService, DaprClientService],
+  providers: [SubscriptionsContainer, DaprClientService, DaprService],
   exports: [DaprService],
 })
 export class DaprModule {
-  static subscribe(subscription: Array<Subscription> | Subscription) {
+  static subscribe(
+    ...subscription: Array<Subscription | [string, string] | string>
+  ) {
+    const mapSubscription = (
+      subs: string | [string, string] | Subscription,
+    ): Subscription => {
+      if (typeof subs === 'string') {
+        return { topic: subs, route: subs };
+      }
+
+      if (Array.isArray(subs)) {
+        const [topic, route] = subs;
+        return { topic, route };
+      }
+
+      return { ...subs };
+    };
+
     if (Array.isArray(subscription)) {
-      subscriptions.push(...subscription);
+      subscriptions.push(...subscription.map(mapSubscription));
     } else {
-      subscriptions.push(subscription);
+      subscriptions.push(mapSubscription(subscription));
     }
 
     return {
       module: DaprModule,
-      controllers: [SubscriptionsController()],
+      controllers: [SubscriptionsController],
       providers: [
         {
-          provide: SubscriptionsContainer,
           useValue: subscriptions,
+          provide: SubscriptionsContainer,
         },
       ],
     };

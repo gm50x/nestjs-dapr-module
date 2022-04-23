@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { HttpMethod } from 'dapr-client';
-import { DaprClientService } from './dapr-client.service';
-
 import { KeyValuePairType } from 'dapr-client/types/KeyValuePair.type';
 import { StateQueryType } from 'dapr-client/types/state/StateQuery.type';
-import { KeyValuePairMetadataType } from '../models';
+
+import { DaprClientService } from './dapr-client.service';
+import { InvokeArgs, KeyValuePairMetadataType } from '../models';
+import { SubscriptionsContainer } from '../containers';
 
 @Injectable()
 export class DaprService {
-  constructor(private readonly client: DaprClientService) {}
+  constructor(
+    private readonly client: DaprClientService,
+    private readonly _subscriptions: SubscriptionsContainer,
+  ) {}
 
-  async getSecret(key: string, store = 'secretstore') {
+  async getSecret(key: string, store = 'secretstore'): Promise<any> {
     const secret = await this.client.secret.get(store, key);
     return secret[key];
   }
@@ -52,6 +56,10 @@ export class DaprService {
         ({ results, token }) =>
           [results?.map((x) => x.data) || [], token] as [Array<T>, string],
       );
+  }
+
+  async invoke<T>(args: InvokeArgs, dataOnly = false) {
+    return this.client.invoke<T>(args).then((x) => (dataOnly ? x.data : x));
   }
 
   async invokeGet<T>(app: string, path: string) {

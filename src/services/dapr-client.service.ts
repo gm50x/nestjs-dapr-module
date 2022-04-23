@@ -3,8 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DaprClient } from 'dapr-client';
 import { firstValueFrom } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 import { KeyValuePairMetadataType } from '../models';
+import { InvokeArgs } from '../models/invoke.model';
 
 @Injectable()
 export class DaprClientService extends DaprClient {
@@ -27,5 +29,23 @@ export class DaprClientService extends DaprClient {
     );
 
     return output;
+  }
+
+  async invoke<T = any>(args: InvokeArgs): Promise<AxiosResponse<T>> {
+    const { method, app, path, authorization, data } = args;
+
+    return firstValueFrom(
+      this.http.request({
+        method,
+        url: `${this.url}/v1.0/invoke/${app}/method/${path.replace(
+          /(^\/|\/$)/g,
+          '',
+        )}`,
+        data,
+        headers: {
+          ...(authorization ? { authorization } : {}),
+        },
+      }),
+    );
   }
 }
