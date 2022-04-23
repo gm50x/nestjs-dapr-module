@@ -1,7 +1,7 @@
 {
   "name": "@gm50x/nestjs-dapr-module",
   "version": "1.0.0",
-  "description": "",
+  "description": "Nest Module to help working Dapr Sidecars",
   "author": "Getúlio Magela Silva",
   "private": false,
   "main": "dist/index.js",
